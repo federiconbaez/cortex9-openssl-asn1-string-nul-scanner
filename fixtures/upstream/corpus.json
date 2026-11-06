@@ -1,0 +1,31 @@
+{
+  "note": "Ground truth per function and side, labelled by hand from the 1.1.1l fix commits' diffs and the 2021-08-24 advisory before running the scanner. UNSAFE = the function passes ASN1 string bytes to a NUL-assuming operation that the fix replaced; SAFE = the post-fix form bounds the use by the stored length (or the function does not read ASN1 data past its length); OUT_OF_SCOPE = changed by the fix series for a different reason. Files are unmodified OpenSSL 1.1.1 sources (OpenSSL/SSLeay dual license, see LICENSE.OpenSSL) at the parent and fix commits listed in commits.txt; SHA256SUMS covers them.",
+  "cases": [
+    {"id": "X509_aux_print", "pre": "c5b2c075feea-crypto_x509_t_x509.c", "post": "d9d838ddc0ed-crypto_x509_t_x509.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "alias printed with %s; fix passes &i and uses %.*s"},
+    {"id": "i2v_GENERAL_NAME", "pre": "4f850d7221ef-crypto_x509v3_v3_alt.c", "post": "174ba8048a7f-crypto_x509v3_v3_alt.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "X509V3_add_value_uchar(gen->d.ia5->data) -> x509v3_add_len_value_uchar(..., length)"},
+    {"id": "X509V3_add_value_uchar", "pre": "4f850d7221ef-crypto_x509v3_v3_utl.c", "post": "174ba8048a7f-crypto_x509v3_v3_utl.c", "truth_pre": "SAFE", "truth_post": "SAFE",
+     "why": "takes a caller pointer documented as a C string; no ASN1 source inside"},
+    {"id": "print_qualifiers", "pre": "174ba8048a7f-crypto_x509v3_v3_cpols.c", "post": "5f54e57406ca-crypto_x509v3_v3_cpols.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "CPS printed with %s -> %.*s with cpsuri->length"},
+    {"id": "print_notice", "pre": "174ba8048a7f-crypto_x509v3_v3_cpols.c", "post": "5f54e57406ca-crypto_x509v3_v3_cpols.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "Organization / Explicit Text with %s -> %.*s"},
+    {"id": "i2r_pci", "pre": "5f54e57406ca-crypto_x509v3_v3_pci.c", "post": "23446958685a-crypto_x509v3_v3_pci.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "Policy Text with %s -> %.*s"},
+    {"id": "nc_dns", "pre": "23446958685a-crypto_x509v3_v3_ncons.c", "post": "8393de42498f-crypto_x509v3_v3_ncons.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "!*baseptr and ia5casecmp on data -> length checks and ia5ncasecmp"},
+    {"id": "nc_email", "pre": "23446958685a-crypto_x509v3_v3_ncons.c", "post": "8393de42498f-crypto_x509v3_v3_ncons.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "strchr(baseptr,'@') and ia5casecmp -> ia5memrchr, IA5_OFFSET_LEN, ia5ncasecmp"},
+    {"id": "nc_uri", "pre": "23446958685a-crypto_x509v3_v3_ncons.c", "post": "8393de42498f-crypto_x509v3_v3_ncons.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "strchr / strlen on hostptr -> ia5memchr and IA5_OFFSET_LEN"},
+    {"id": "cn2dnsid", "pre": "23446958685a-crypto_x509v3_v3_ncons.c", "post": "8393de42498f-crypto_x509v3_v3_ncons.c", "truth_pre": "SAFE", "truth_post": "SAFE",
+     "why": "strlen on ASN1_STRING_to_UTF8 output, which OpenSSL NUL-terminates; fix changes the embedded-NUL test to memchr"},
+    {"id": "append_ia5", "pre": "4de66925203c-crypto_x509v3_v3_utl.c", "post": "bb4d2ed40914-crypto_x509v3_v3_utl.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "sk_OPENSSL_STRING_find and OPENSSL_strdup on email->data -> memchr + OPENSSL_strndup(length)"},
+    {"id": "NETSCAPE_SPKI_print", "pre": "bb4d2ed40914-crypto_asn1_t_spki.c", "post": "2d0e5d4a4a5d-crypto_asn1_t_spki.c", "truth_pre": "UNSAFE", "truth_post": "SAFE",
+     "why": "Challenge String with %s -> %.*s with chal->length"},
+    {"id": "TS_REQ_to_TS_VERIFY_CTX", "pre": "869e1424438b-crypto_ts_ts_verify_ctx.c", "post": "5478387c14e0-crypto_ts_ts_verify_ctx.c", "truth_pre": "OUT_OF_SCOPE", "truth_post": "OUT_OF_SCOPE",
+     "why": "adds imprint_len <= 0 check; not a NUL-termination issue"}
+  ]
+}

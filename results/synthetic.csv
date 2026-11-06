@@ -1,0 +1,22 @@
+file,expect,scanner,truth,outcome,limitation
+s01_printf_s.c,UNSAFE,UNSAFE,UNSAFE,detected,
+s02_printf_prec_len.c,SAFE,SAFE,SAFE,correct_safe,
+s03_printf_prec_literal.c,UNKNOWN,UNKNOWN,UNSAFE,flagged_unknown,a literal precision may exceed length
+s04_printf_prec_wrong.c,UNKNOWN,UNKNOWN,UNKNOWN,agrees_unknown,
+s05_alias_null.c,UNSAFE,UNSAFE,UNSAFE,detected,
+s06_alias_len.c,SAFE,SAFE,SAFE,correct_safe,
+s07_strdup.c,UNSAFE,UNSAFE,UNSAFE,detected,
+s08_strndup_len.c,SAFE,SAFE,SAFE,correct_safe,
+s09_alias_var_strlen.c,UNSAFE,UNSAFE,UNSAFE,detected,
+s10_reassigned.c,NO_SOURCE,NO_SOURCE,SAFE,correct_safe,
+s11_strchr_propagates.c,UNSAFE,UNSAFE,UNSAFE,detected,
+s12_memchr_len.c,SAFE,SAFE,SAFE,correct_safe,
+s13_memchr_not_len.c,UNKNOWN,UNKNOWN,UNKNOWN,agrees_unknown,
+s14_guarded_deref.c,SAFE,SAFE,SAFE,correct_safe,
+s15_unguarded_deref.c,UNKNOWN,UNKNOWN,UNSAFE,flagged_unknown,length 0 makes *p an over-read; rules only say UNKNOWN
+s16_comment_and_string.c,NO_SOURCE,NO_SOURCE,SAFE,correct_safe,
+s17_unknown_callee.c,UNKNOWN,UNKNOWN,UNKNOWN,agrees_unknown,
+s18_no_source.c,NO_SOURCE,NO_SOURCE,SAFE,correct_safe,
+s19_loop_index.c,SAFE,SAFE,SAFE,correct_safe,
+s20_non_asn1_data.c,UNSAFE,UNSAFE,UNKNOWN,overclaims_unsafe,any ->data is treated as ASN1 data (false positive)
+s21_macro_hidden_sink.c,NO_SOURCE,NO_SOURCE,UNSAFE,missed,macros are not expanded (false negative)

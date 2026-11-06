@@ -1,0 +1,26 @@
+{
+  "note": "Hand-written snippets (not taken from OpenSSL) with the verdict the documented rules must give, derived on paper from the rules in scanner.py's docstring. 'truth' is what a careful human would say; 'expect' is what the rules give. Where they differ, the case documents a known limitation.",
+  "cases": [
+    {"file": "s01_printf_s.c", "expect": "UNSAFE", "truth": "UNSAFE"},
+    {"file": "s02_printf_prec_len.c", "expect": "SAFE", "truth": "SAFE"},
+    {"file": "s03_printf_prec_literal.c", "expect": "UNKNOWN", "truth": "UNSAFE", "limitation": "a literal precision may exceed length"},
+    {"file": "s04_printf_prec_wrong.c", "expect": "UNKNOWN", "truth": "UNKNOWN"},
+    {"file": "s05_alias_null.c", "expect": "UNSAFE", "truth": "UNSAFE"},
+    {"file": "s06_alias_len.c", "expect": "SAFE", "truth": "SAFE"},
+    {"file": "s07_strdup.c", "expect": "UNSAFE", "truth": "UNSAFE"},
+    {"file": "s08_strndup_len.c", "expect": "SAFE", "truth": "SAFE"},
+    {"file": "s09_alias_var_strlen.c", "expect": "UNSAFE", "truth": "UNSAFE"},
+    {"file": "s10_reassigned.c", "expect": "NO_SOURCE", "truth": "SAFE"},
+    {"file": "s11_strchr_propagates.c", "expect": "UNSAFE", "truth": "UNSAFE"},
+    {"file": "s12_memchr_len.c", "expect": "SAFE", "truth": "SAFE"},
+    {"file": "s13_memchr_not_len.c", "expect": "UNKNOWN", "truth": "UNKNOWN"},
+    {"file": "s14_guarded_deref.c", "expect": "SAFE", "truth": "SAFE"},
+    {"file": "s15_unguarded_deref.c", "expect": "UNKNOWN", "truth": "UNSAFE", "limitation": "length 0 makes *p an over-read; rules only say UNKNOWN"},
+    {"file": "s16_comment_and_string.c", "expect": "NO_SOURCE", "truth": "SAFE"},
+    {"file": "s17_unknown_callee.c", "expect": "UNKNOWN", "truth": "UNKNOWN"},
+    {"file": "s18_no_source.c", "expect": "NO_SOURCE", "truth": "SAFE"},
+    {"file": "s19_loop_index.c", "expect": "SAFE", "truth": "SAFE"},
+    {"file": "s20_non_asn1_data.c", "expect": "UNSAFE", "truth": "UNKNOWN", "limitation": "any ->data is treated as ASN1 data (false positive)"},
+    {"file": "s21_macro_hidden_sink.c", "expect": "NO_SOURCE", "truth": "UNSAFE", "limitation": "macros are not expanded (false negative)"}
+  ]
+}

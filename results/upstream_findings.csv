@@ -1,0 +1,74 @@
+function,side,rel_line,kind,rule,text
+X509_aux_print,pre,44,UNSAFE,BIO_printf: %s without precision,"BIO_printf ( out , ""%*sAlias: %s\n"" , indent , """" , alias )"
+X509_aux_print,pre,49,SAFE,dereference with a length test in the statement,": """" , keyid [ i ]"
+X509_aux_print,post,44,SAFE,BIO_printf: %.*s with length,"BIO_printf ( out , ""%*sAlias: %.*s\n"" , indent , """" , i , alias )"
+X509_aux_print,post,49,SAFE,dereference with a length test in the statement,": """" , keyid [ i ]"
+i2v_GENERAL_NAME,pre,26,UNSAFE,X509V3_add_value_uchar: NUL-scanning sink,"X509V3_add_value_uchar ( ""email"" , gen -> d . ia5 -> data , & ret )"
+i2v_GENERAL_NAME,pre,31,UNSAFE,X509V3_add_value_uchar: NUL-scanning sink,"X509V3_add_value_uchar ( ""DNS"" , gen -> d . ia5 -> data , & ret )"
+i2v_GENERAL_NAME,pre,36,UNSAFE,X509V3_add_value_uchar: NUL-scanning sink,"X509V3_add_value_uchar ( ""URI"" , gen -> d . ia5 -> data , & ret )"
+i2v_GENERAL_NAME,pre,50,SAFE,dereference with a length test in the statement,", ""%d.%d.%d.%d"" , p [ 0 ]"
+i2v_GENERAL_NAME,pre,50,SAFE,dereference with a length test in the statement,"0 ] , p [ 1 ]"
+i2v_GENERAL_NAME,pre,50,SAFE,dereference with a length test in the statement,"1 ] , p [ 2 ]"
+i2v_GENERAL_NAME,pre,50,SAFE,dereference with a length test in the statement,"2 ] , p [ 3 ]"
+i2v_GENERAL_NAME,pre,54,UNKNOWN,unguarded dereference,", ""%X"" , p [ 0 ]"
+i2v_GENERAL_NAME,pre,54,UNKNOWN,unguarded dereference,<< 8 | p [ 1 ]
+i2v_GENERAL_NAME,post,26,SAFE,x509v3_add_len_value_uchar: bounded by length,"x509v3_add_len_value_uchar ( ""email"" , gen -> d . ia5 -> data , gen -> d . ia5 -> length , & ret )"
+i2v_GENERAL_NAME,post,32,SAFE,x509v3_add_len_value_uchar: bounded by length,"x509v3_add_len_value_uchar ( ""DNS"" , gen -> d . ia5 -> data , gen -> d . ia5 -> length , & ret )"
+i2v_GENERAL_NAME,post,38,SAFE,x509v3_add_len_value_uchar: bounded by length,"x509v3_add_len_value_uchar ( ""URI"" , gen -> d . ia5 -> data , gen -> d . ia5 -> length , & ret )"
+i2v_GENERAL_NAME,post,53,SAFE,dereference with a length test in the statement,", ""%d.%d.%d.%d"" , p [ 0 ]"
+i2v_GENERAL_NAME,post,53,SAFE,dereference with a length test in the statement,"0 ] , p [ 1 ]"
+i2v_GENERAL_NAME,post,53,SAFE,dereference with a length test in the statement,"1 ] , p [ 2 ]"
+i2v_GENERAL_NAME,post,53,SAFE,dereference with a length test in the statement,"2 ] , p [ 3 ]"
+i2v_GENERAL_NAME,post,57,UNKNOWN,unguarded dereference,", ""%X"" , p [ 0 ]"
+i2v_GENERAL_NAME,post,57,UNKNOWN,unguarded dereference,<< 8 | p [ 1 ]
+print_qualifiers,pre,10,UNSAFE,BIO_printf: %s without precision,"BIO_printf ( out , ""%*sCPS: %s\n"" , indent , """" , qualinfo -> d . cpsuri -> data )"
+print_qualifiers,post,10,SAFE,BIO_printf: %.*s with length,"BIO_printf ( out , ""%*sCPS: %.*s\n"" , indent , """" , qualinfo -> d . cpsuri -> length , qualinfo -> d . cpsuri -> data )"
+print_notice,pre,7,UNSAFE,BIO_printf: %s without precision,"BIO_printf ( out , ""%*sOrganization: %s\n"" , indent , """" , ref -> organization -> data )"
+print_notice,pre,30,UNSAFE,BIO_printf: %s without precision,"BIO_printf ( out , ""%*sExplicit Text: %s\n"" , indent , """" , notice -> exptext -> data )"
+print_notice,post,7,SAFE,BIO_printf: %.*s with length,"BIO_printf ( out , ""%*sOrganization: %.*s\n"" , indent , """" , ref -> organization -> length , ref -> organization -> data )"
+print_notice,post,31,SAFE,BIO_printf: %.*s with length,"BIO_printf ( out , ""%*sExplicit Text: %.*s\n"" , indent , """" , notice -> exptext -> length , notice -> exptext -> data )"
+i2r_pci,pre,14,UNSAFE,BIO_printf: %s without precision,"BIO_printf ( out , ""%*sPolicy Text: %s\n"" , indent , """" , pci -> proxyPolicy -> policy -> data )"
+i2r_pci,post,14,SAFE,BIO_printf: %.*s with length,"BIO_printf ( out , ""%*sPolicy Text: %.*s\n"" , indent , """" , pci -> proxyPolicy -> policy -> length , pci -> proxyPolicy -> policy -> data )"
+nc_dns,pre,6,UNKNOWN,unguarded dereference,( ! * baseptr ) return X509_V_OK
+nc_dns,pre,14,UNKNOWN,unguarded dereference,if ( * baseptr != '.' &&
+nc_dns,pre,14,UNKNOWN,unguarded dereference,!= '.' && dnsptr [ - 1
+nc_dns,pre,18,UNSAFE,ia5casecmp: NUL-scanning sink,"ia5casecmp ( baseptr , dnsptr )"
+nc_dns,post,19,UNKNOWN,unguarded dereference,if ( * baseptr != '.' &&
+nc_dns,post,19,UNKNOWN,unguarded dereference,!= '.' && dnsptr [ - 1
+nc_dns,post,23,SAFE,ia5ncasecmp: bounded by length,"ia5ncasecmp ( baseptr , dnsptr , base -> length )"
+nc_email,pre,6,UNSAFE,strchr: NUL-scanning sink,"strchr ( baseptr , '@' )"
+nc_email,pre,7,UNSAFE,strchr: NUL-scanning sink,"strchr ( emlptr , '@' )"
+nc_email,pre,11,UNKNOWN,unguarded dereference,&& ( * baseptr == '.' )
+nc_email,pre,14,UNSAFE,ia5casecmp: NUL-scanning sink,"ia5casecmp ( baseptr , emlptr )"
+nc_email,pre,27,UNKNOWN,strncmp: size not a length expression,"strncmp ( baseptr , emlptr , emlat - emlptr )"
+nc_email,pre,35,UNSAFE,ia5casecmp: NUL-scanning sink,"ia5casecmp ( baseptr , emlptr )"
+nc_email,post,12,SAFE,dereference with a length test in the statement,&& ( * baseptr == '.' )
+nc_email,post,15,SAFE,ia5ncasecmp: bounded by length,"ia5ncasecmp ( baseptr , emlptr , base -> length )"
+nc_email,post,28,UNKNOWN,strncmp: size not a length expression,"strncmp ( baseptr , emlptr , emlat - emlptr )"
+nc_uri,pre,5,UNSAFE,strchr: NUL-scanning sink,"strchr ( hostptr , ':' )"
+nc_uri,pre,8,UNKNOWN,unguarded dereference,p || ( p [ 1 ]
+nc_uri,pre,8,UNKNOWN,unguarded dereference,) || ( p [ 2 ]
+nc_uri,pre,16,UNSAFE,strchr: NUL-scanning sink,"strchr ( hostptr , ':' )"
+nc_uri,pre,19,UNSAFE,strchr: NUL-scanning sink,"strchr ( hostptr , '/' )"
+nc_uri,pre,22,UNSAFE,strlen: NUL-scanning sink,strlen ( hostptr )
+nc_uri,pre,30,UNKNOWN,unguarded dereference,if ( * baseptr == '.' )
+nc_uri,pre,33,SAFE,ia5ncasecmp: bounded by length,"ia5ncasecmp ( p , baseptr , base -> length )"
+nc_uri,pre,40,SAFE,ia5ncasecmp: bounded by length,"ia5ncasecmp ( hostptr , baseptr , hostlen )"
+nc_uri,post,5,SAFE,ia5memchr: bounded by IA5_OFFSET_LEN/length,"ia5memchr ( uri , ( char * ) uri -> data , ':' )"
+nc_uri,post,11,SAFE,dereference with a length test in the statement,< 3 || p [ 1 ]
+nc_uri,post,12,SAFE,dereference with a length test in the statement,!= '/' || p [ 2 ]
+nc_uri,post,20,SAFE,ia5memchr: bounded by IA5_OFFSET_LEN/length,"ia5memchr ( uri , hostptr , ':' )"
+nc_uri,post,23,SAFE,ia5memchr: bounded by IA5_OFFSET_LEN/length,"ia5memchr ( uri , hostptr , '/' )"
+nc_uri,post,34,SAFE,dereference with a length test in the statement,0 && * baseptr == '.' )
+nc_uri,post,37,SAFE,ia5ncasecmp: bounded by length,"ia5ncasecmp ( p , baseptr , base -> length )"
+nc_uri,post,44,SAFE,ia5ncasecmp: bounded by length,"ia5ncasecmp ( hostptr , baseptr , hostlen )"
+append_ia5,pre,14,UNSAFE,sk_OPENSSL_STRING_find: NUL-scanning sink,"sk_OPENSSL_STRING_find ( * sk , ( char * ) email -> data )"
+append_ia5,pre,16,UNSAFE,OPENSSL_strdup: NUL-scanning sink,OPENSSL_strdup ( ( char * ) email -> data )
+append_ia5,post,9,SAFE,memchr: bounded by length,"memchr ( email -> data , 0 , email -> length )"
+append_ia5,post,16,SAFE,OPENSSL_strndup: bounded by length,"OPENSSL_strndup ( ( char * ) email -> data , email -> length )"
+NETSCAPE_SPKI_print,pre,22,UNSAFE,BIO_printf: %s without precision,"BIO_printf ( out , ""  Challenge String: %s\n"" , chal -> data )"
+NETSCAPE_SPKI_print,pre,32,SAFE,dereference with a length test in the statement,unsigned char ) s [ i ]
+NETSCAPE_SPKI_print,post,22,SAFE,BIO_printf: %.*s with length,"BIO_printf ( out , ""  Challenge String: %.*s\n"" , chal -> length , chal -> data )"
+NETSCAPE_SPKI_print,post,32,SAFE,dereference with a length test in the statement,unsigned char ) s [ i ]
+TS_REQ_to_TS_VERIFY_CTX,pre,32,SAFE,memcpy: bounded by length,"memcpy ( ret -> imprint , ASN1_STRING_get0_data ( msg ) , ret -> imprint_len )"
+TS_REQ_to_TS_VERIFY_CTX,post,34,SAFE,memcpy: bounded by length,"memcpy ( ret -> imprint , ASN1_STRING_get0_data ( msg ) , ret -> imprint_len )"

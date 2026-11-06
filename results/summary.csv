@@ -1,0 +1,14 @@
+corpus,side,outcome,count
+upstream,post,correct_safe,9
+upstream,post,out_of_scope,1
+upstream,post,unknown_on_safe,3
+upstream,pre,correct_safe,2
+upstream,pre,detected,10
+upstream,pre,out_of_scope,1
+synthetic,-,agrees_unknown,3
+synthetic,-,correct_safe,9
+synthetic,-,detected,5
+synthetic,-,flagged_unknown,2
+synthetic,-,missed,1
+synthetic,-,overclaims_unsafe,1
+synthetic,-,rule_mismatches,0
