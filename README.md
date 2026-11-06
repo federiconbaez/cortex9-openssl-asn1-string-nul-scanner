@@ -1,77 +1,84 @@
 # cortex9-openssl-asn1-string-nul-scanner
 
-A lexical, intraprocedural scanner for C code that passes `ASN1_STRING`
-bytes to operations assuming NUL termination. This is the bug class of
-CVE-2021-3712 (OpenSSL advisory of 2021-08-24, "Read buffer overruns
-processing ASN.1 strings", fixed in 1.1.1l).
+A lexical, intraprocedural **warning heuristic** for C code that passes
+`ASN1_STRING` bytes to operations assuming NUL termination. This is the
+bug class of CVE-2021-3712 (OpenSSL advisory of 2021-08-24, fixed in
+1.1.1l). No code is compiled or executed. **It does not prove anything
+safe or unsafe.**
 
-**It is not grep and not a compiler.** The scanner does the following:
+## Labels
 
-- It tokenizes C (dropping comments and preprocessor lines) and splits
-  statements.
-- It tracks *sources* in source order: `->data`,
-  `ASN1_STRING_get0_data`, `X509_alias_get0` and others, plus variables
-  derived from them by cast, offset or `strchr`.
-- It tracks *length expressions* and length out-parameters.
-- It classifies each use as `UNSAFE`, `SAFE` or `UNKNOWN`:
-  - `UNSAFE`: `%s` without precision, or a NUL-scanning function;
-  - `SAFE`: `%.*s` or a length-taking function bounded by a length, or a
-    length-guarded dereference;
-  - `UNKNOWN`: anything the rules cannot decide.
+| Label | Meaning |
+|---|---|
+| `NUL_SINK_WARNING` | The ASN1 bytes reach `%s` without precision, or a NUL-scanning function. This is a warning about a pattern, **not** proof of a real over-read: the buffer may be NUL-terminated by construction. |
+| `BOUNDED_PATTERN` | The use matches a recognised pattern whose bound is syntactically tied to the **same origin object**. Examples: `%.*s` with `s->length` for `s->data`, `OPENSSL_strndup(p, s->length)`, `IA5_OFFSET_LEN(s, q)` for a derived pointer `q`, `for (i < s->length)` body indices, and `s->length > 0 && *p`. It is **not** a safety claim. It assumes `length >= 0` and that nothing between the bound and the use changes it. |
+| `UNKNOWN` | The rules cannot tie the use to a bound. This is the honest default. |
+| `NO_SOURCE` | No ASN1 source was recognised. |
 
-The function verdict is the worst finding: `UNSAFE` > `UNKNOWN` >
-`SAFE` > `NO_SOURCE`. No code is compiled or executed.
+The function verdict is the worst label found. Sources, origins and the
+accepted bound forms are specified in the docstring of
+`src/asn1nul/scanner.py`.
+
+The scanner does not do flow analysis. A length test in an earlier
+statement, a `||` chain or a merely length-named identifier stays
+`UNKNOWN`.
 
 ## Corpora and results (`results/`)
 
-### Upstream
+### Upstream (tuned, not independent)
 
-The upstream corpus has 13 functions × {pre, post} = 26 cases. The
-functions are taken from unmodified OpenSSL files at the parent and fix
-commit of each 1.1.1l fix:
-
-- d9d838ddc0ed, 174ba8048a7f, 5f54e57406ca, 23446958685a, 8393de42498f,
-  bb4d2ed40914, 2d0e5d4a4a5d;
-- 5478387c14e0, labelled out of scope.
-
-Each case was hand-labelled from the diffs before running the scanner.
+The corpus has 13 functions × {pre, post}, taken from unmodified OpenSSL
+files at the parent and fix commit of each 1.1.1l fix. Labels were set by
+hand from the diffs. The rules were adjusted after looking at this
+corpus, so the numbers below measure fit to it, not accuracy on other
+code.
 
 | side | outcome | count |
 |---|---|---|
-| pre | detected (truth UNSAFE → scanner UNSAFE) | 10 / 10 |
-| pre | correct_safe (truth SAFE) | 2 |
-| post | correct_safe | 9 |
-| post | unknown_on_safe (scanner could not prove a fixed function safe) | 3 |
-| post | false_positive | 0 |
-| both | out_of_scope (TS imprint_len) | 1 + 1 |
+| pre | `warned` (hand label UNSAFE) | 10 |
+| pre | hand label SAFE, no warning | 2 |
+| post | no warning | 8 |
+| post | `UNKNOWN` on a fixed function | 4 |
+| both | out of scope (TS imprint_len) | 1 + 1 |
 
-The three `UNKNOWN` cases after the fix need guards the lexical rules do
-not track:
+There is no `NUL_SINK_WARNING` on the post side of this corpus. That is
+**not** evidence that the scanner has no false positives. See the
+synthetic `s20` case, a known false positive.
 
-- **i2v_GENERAL_NAME:** `p[0]` is guarded by an earlier `length == 4`
-  test.
-- **nc_dns:** `*baseptr` is guarded by an earlier `return` on
-  `length == 0`.
-- **nc_email:** `strncmp` is bounded by a pointer difference.
+The four `UNKNOWN` results after the fix come from bounds the rules
+deliberately do not accept (see `results/upstream_findings.csv`):
 
-### Synthetic
+- **i2v_GENERAL_NAME:** `p[0..3]` is read after an earlier
+  `length == 4 / 16` test in another statement.
+- **nc_dns, nc_email, nc_uri:**
+  - `ia5ncasecmp` compares two strings of *different* origins using one
+    origin's length. The fix relies on an earlier `dns->length <
+    base->length` check, which the rules do not follow.
+  - Some sizes are pointer differences or computed variables
+    (`emlat - emlptr`, `hostlen`).
+  - Some dereferences are guarded only in earlier statements or by `||`
+    chains.
 
-The synthetic corpus has 21 hand-written snippets, which are the rule
-specification. The scanner matches the rule expectation in 21 / 21. Four
-documented limitations are included:
+### Synthetic (rule specification)
 
-- a literal precision (`%.8s`);
-- an unguarded `*p` that is really an over-read;
-- any `->data` taken as ASN1 data (a false positive);
-- a sink hidden in a macro (a false negative).
+The synthetic corpus has 31 hand-written snippets, and the scanner gives
+the expected label in all 31. It includes 10 probes for heuristic
+**false-safe** cases, each of which must not be `BOUNDED_PATTERN`:
 
-**Honesty notes:**
+- a length larger than the buffer;
+- a negative printf precision;
+- `p[i]` with `i <= length`;
+- `p[length]`;
+- an `unrelated_len` identifier;
+- another object's length;
+- a guard that does not dominate the read;
+- a `||` guard;
+- a loop index used after the loop;
+- a derived pointer with the full length.
 
-- The rules were adjusted after seeing the upstream corpus, by adding
-  `IA5_OFFSET_LEN`/`ASN1_STRING_length` as length computations,
-  length-variable assignment and for-loop index bounds. The upstream
-  numbers are therefore **not** a held-out evaluation.
-- The `SAFE` results are rule-level claims, not proofs.
+The synthetic corpus also keeps the known limitations: a literal
+precision, an unguarded `*p`, any `->data` treated as ASN1 (a false
+positive), and a macro-hidden sink (a false negative).
 
 ## Usage
 

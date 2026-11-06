@@ -1,22 +1,32 @@
 file,expect,scanner,truth,outcome,limitation
-s01_printf_s.c,UNSAFE,UNSAFE,UNSAFE,detected,
-s02_printf_prec_len.c,SAFE,SAFE,SAFE,correct_safe,
-s03_printf_prec_literal.c,UNKNOWN,UNKNOWN,UNSAFE,flagged_unknown,a literal precision may exceed length
-s04_printf_prec_wrong.c,UNKNOWN,UNKNOWN,UNKNOWN,agrees_unknown,
-s05_alias_null.c,UNSAFE,UNSAFE,UNSAFE,detected,
-s06_alias_len.c,SAFE,SAFE,SAFE,correct_safe,
-s07_strdup.c,UNSAFE,UNSAFE,UNSAFE,detected,
-s08_strndup_len.c,SAFE,SAFE,SAFE,correct_safe,
-s09_alias_var_strlen.c,UNSAFE,UNSAFE,UNSAFE,detected,
-s10_reassigned.c,NO_SOURCE,NO_SOURCE,SAFE,correct_safe,
-s11_strchr_propagates.c,UNSAFE,UNSAFE,UNSAFE,detected,
-s12_memchr_len.c,SAFE,SAFE,SAFE,correct_safe,
-s13_memchr_not_len.c,UNKNOWN,UNKNOWN,UNKNOWN,agrees_unknown,
-s14_guarded_deref.c,SAFE,SAFE,SAFE,correct_safe,
-s15_unguarded_deref.c,UNKNOWN,UNKNOWN,UNSAFE,flagged_unknown,length 0 makes *p an over-read; rules only say UNKNOWN
-s16_comment_and_string.c,NO_SOURCE,NO_SOURCE,SAFE,correct_safe,
-s17_unknown_callee.c,UNKNOWN,UNKNOWN,UNKNOWN,agrees_unknown,
-s18_no_source.c,NO_SOURCE,NO_SOURCE,SAFE,correct_safe,
-s19_loop_index.c,SAFE,SAFE,SAFE,correct_safe,
-s20_non_asn1_data.c,UNSAFE,UNSAFE,UNKNOWN,overclaims_unsafe,any ->data is treated as ASN1 data (false positive)
-s21_macro_hidden_sink.c,NO_SOURCE,NO_SOURCE,UNSAFE,missed,macros are not expanded (false negative)
+s01_printf_s.c,NUL_SINK_WARNING,NUL_SINK_WARNING,UNSAFE,warned,
+s02_printf_prec_len.c,BOUNDED_PATTERN,BOUNDED_PATTERN,SAFE,no_warning_on_safe,
+s03_printf_prec_literal.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,a literal precision may exceed length
+s04_printf_prec_wrong.c,UNKNOWN,UNKNOWN,UNKNOWN,unknown_on_unknown,
+s05_alias_null.c,NUL_SINK_WARNING,NUL_SINK_WARNING,UNSAFE,warned,
+s06_alias_len.c,BOUNDED_PATTERN,BOUNDED_PATTERN,SAFE,no_warning_on_safe,
+s07_strdup.c,NUL_SINK_WARNING,NUL_SINK_WARNING,UNSAFE,warned,
+s08_strndup_len.c,BOUNDED_PATTERN,BOUNDED_PATTERN,SAFE,no_warning_on_safe,
+s09_alias_var_strlen.c,NUL_SINK_WARNING,NUL_SINK_WARNING,UNSAFE,warned,
+s10_reassigned.c,NO_SOURCE,NO_SOURCE,SAFE,no_warning_on_safe,
+s11_strchr_propagates.c,NUL_SINK_WARNING,NUL_SINK_WARNING,UNSAFE,warned,
+s12_memchr_len.c,BOUNDED_PATTERN,BOUNDED_PATTERN,SAFE,no_warning_on_safe,
+s13_memchr_not_len.c,UNKNOWN,UNKNOWN,UNKNOWN,unknown_on_unknown,
+s14_guarded_deref.c,BOUNDED_PATTERN,BOUNDED_PATTERN,SAFE,no_warning_on_safe,
+s15_unguarded_deref.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,length 0 makes *p an over-read; rules only say UNKNOWN
+s16_comment_and_string.c,NO_SOURCE,NO_SOURCE,SAFE,no_warning_on_safe,
+s17_unknown_callee.c,UNKNOWN,UNKNOWN,UNKNOWN,unknown_on_unknown,
+s18_no_source.c,NO_SOURCE,NO_SOURCE,SAFE,no_warning_on_safe,
+s19_loop_index.c,BOUNDED_PATTERN,BOUNDED_PATTERN,SAFE,no_warning_on_safe,
+s20_non_asn1_data.c,NUL_SINK_WARNING,NUL_SINK_WARNING,UNKNOWN,warning_on_unknown,any ->data is treated as ASN1 data (false positive)
+s21_macro_hidden_sink.c,NO_SOURCE,NO_SOURCE,UNSAFE,not_warned_on_unsafe,macros are not expanded (false negative)
+s22_len_larger_than_buffer.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: bound is length + 8 (arithmetic is not accepted)
+s23_negative_precision.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,"heuristic false-safe probe: negative precision is ignored by printf, so %.*s acts like %s"
+s24_loop_le.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: i <= length reads one past the end; `<=` is not accepted
+s25_index_at_length.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: p[length] is one past the end; only loop indices are accepted
+s26_unrelated_len.c,UNKNOWN,UNKNOWN,UNKNOWN,unknown_on_unknown,heuristic false-safe probe: identifier merely named *_len is not tied to the origin
+s27_other_object_length.c,UNKNOWN,UNKNOWN,UNKNOWN,unknown_on_unknown,heuristic false-safe probe: length of a different object
+s28_guard_not_dominating.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: length test in an earlier statement does not guard the read
+s29_guard_with_or.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: `||` evaluates *p exactly when length is 0
+s30_index_after_loop.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: loop index used after the loop (i == length)
+s31_derived_pointer_full_length.c,UNKNOWN,UNKNOWN,UNSAFE,unknown_on_unsafe,heuristic false-safe probe: derived pointer (data + 1) with the full length over-reads by one

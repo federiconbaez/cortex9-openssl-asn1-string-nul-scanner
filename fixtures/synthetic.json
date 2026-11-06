@@ -1,26 +1,174 @@
 {
-  "note": "Hand-written snippets (not taken from OpenSSL) with the verdict the documented rules must give, derived on paper from the rules in scanner.py's docstring. 'truth' is what a careful human would say; 'expect' is what the rules give. Where they differ, the case documents a known limitation.",
-  "cases": [
-    {"file": "s01_printf_s.c", "expect": "UNSAFE", "truth": "UNSAFE"},
-    {"file": "s02_printf_prec_len.c", "expect": "SAFE", "truth": "SAFE"},
-    {"file": "s03_printf_prec_literal.c", "expect": "UNKNOWN", "truth": "UNSAFE", "limitation": "a literal precision may exceed length"},
-    {"file": "s04_printf_prec_wrong.c", "expect": "UNKNOWN", "truth": "UNKNOWN"},
-    {"file": "s05_alias_null.c", "expect": "UNSAFE", "truth": "UNSAFE"},
-    {"file": "s06_alias_len.c", "expect": "SAFE", "truth": "SAFE"},
-    {"file": "s07_strdup.c", "expect": "UNSAFE", "truth": "UNSAFE"},
-    {"file": "s08_strndup_len.c", "expect": "SAFE", "truth": "SAFE"},
-    {"file": "s09_alias_var_strlen.c", "expect": "UNSAFE", "truth": "UNSAFE"},
-    {"file": "s10_reassigned.c", "expect": "NO_SOURCE", "truth": "SAFE"},
-    {"file": "s11_strchr_propagates.c", "expect": "UNSAFE", "truth": "UNSAFE"},
-    {"file": "s12_memchr_len.c", "expect": "SAFE", "truth": "SAFE"},
-    {"file": "s13_memchr_not_len.c", "expect": "UNKNOWN", "truth": "UNKNOWN"},
-    {"file": "s14_guarded_deref.c", "expect": "SAFE", "truth": "SAFE"},
-    {"file": "s15_unguarded_deref.c", "expect": "UNKNOWN", "truth": "UNSAFE", "limitation": "length 0 makes *p an over-read; rules only say UNKNOWN"},
-    {"file": "s16_comment_and_string.c", "expect": "NO_SOURCE", "truth": "SAFE"},
-    {"file": "s17_unknown_callee.c", "expect": "UNKNOWN", "truth": "UNKNOWN"},
-    {"file": "s18_no_source.c", "expect": "NO_SOURCE", "truth": "SAFE"},
-    {"file": "s19_loop_index.c", "expect": "SAFE", "truth": "SAFE"},
-    {"file": "s20_non_asn1_data.c", "expect": "UNSAFE", "truth": "UNKNOWN", "limitation": "any ->data is treated as ASN1 data (false positive)"},
-    {"file": "s21_macro_hidden_sink.c", "expect": "NO_SOURCE", "truth": "UNSAFE", "limitation": "macros are not expanded (false negative)"}
-  ]
+ "note": "Hand-written snippets (not taken from OpenSSL). 'expect' is the label the documented rules must give, derived on paper from scanner.py's docstring; 'truth' is a human judgement (UNSAFE / SAFE / UNKNOWN). s22-s31 are probes for heuristic false-safes requested in audit: each must NOT be labelled BOUNDED_PATTERN.",
+ "cases": [
+  {
+   "file": "s01_printf_s.c",
+   "expect": "NUL_SINK_WARNING",
+   "truth": "UNSAFE"
+  },
+  {
+   "file": "s02_printf_prec_len.c",
+   "expect": "BOUNDED_PATTERN",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s03_printf_prec_literal.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "a literal precision may exceed length"
+  },
+  {
+   "file": "s04_printf_prec_wrong.c",
+   "expect": "UNKNOWN",
+   "truth": "UNKNOWN"
+  },
+  {
+   "file": "s05_alias_null.c",
+   "expect": "NUL_SINK_WARNING",
+   "truth": "UNSAFE"
+  },
+  {
+   "file": "s06_alias_len.c",
+   "expect": "BOUNDED_PATTERN",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s07_strdup.c",
+   "expect": "NUL_SINK_WARNING",
+   "truth": "UNSAFE"
+  },
+  {
+   "file": "s08_strndup_len.c",
+   "expect": "BOUNDED_PATTERN",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s09_alias_var_strlen.c",
+   "expect": "NUL_SINK_WARNING",
+   "truth": "UNSAFE"
+  },
+  {
+   "file": "s10_reassigned.c",
+   "expect": "NO_SOURCE",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s11_strchr_propagates.c",
+   "expect": "NUL_SINK_WARNING",
+   "truth": "UNSAFE"
+  },
+  {
+   "file": "s12_memchr_len.c",
+   "expect": "BOUNDED_PATTERN",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s13_memchr_not_len.c",
+   "expect": "UNKNOWN",
+   "truth": "UNKNOWN"
+  },
+  {
+   "file": "s14_guarded_deref.c",
+   "expect": "BOUNDED_PATTERN",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s15_unguarded_deref.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "length 0 makes *p an over-read; rules only say UNKNOWN"
+  },
+  {
+   "file": "s16_comment_and_string.c",
+   "expect": "NO_SOURCE",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s17_unknown_callee.c",
+   "expect": "UNKNOWN",
+   "truth": "UNKNOWN"
+  },
+  {
+   "file": "s18_no_source.c",
+   "expect": "NO_SOURCE",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s19_loop_index.c",
+   "expect": "BOUNDED_PATTERN",
+   "truth": "SAFE"
+  },
+  {
+   "file": "s20_non_asn1_data.c",
+   "expect": "NUL_SINK_WARNING",
+   "truth": "UNKNOWN",
+   "limitation": "any ->data is treated as ASN1 data (false positive)"
+  },
+  {
+   "file": "s21_macro_hidden_sink.c",
+   "expect": "NO_SOURCE",
+   "truth": "UNSAFE",
+   "limitation": "macros are not expanded (false negative)"
+  },
+  {
+   "file": "s22_len_larger_than_buffer.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: bound is length + 8 (arithmetic is not accepted)"
+  },
+  {
+   "file": "s23_negative_precision.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: negative precision is ignored by printf, so %.*s acts like %s"
+  },
+  {
+   "file": "s24_loop_le.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: i <= length reads one past the end; `<=` is not accepted"
+  },
+  {
+   "file": "s25_index_at_length.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: p[length] is one past the end; only loop indices are accepted"
+  },
+  {
+   "file": "s26_unrelated_len.c",
+   "expect": "UNKNOWN",
+   "truth": "UNKNOWN",
+   "limitation": "heuristic false-safe probe: identifier merely named *_len is not tied to the origin"
+  },
+  {
+   "file": "s27_other_object_length.c",
+   "expect": "UNKNOWN",
+   "truth": "UNKNOWN",
+   "limitation": "heuristic false-safe probe: length of a different object"
+  },
+  {
+   "file": "s28_guard_not_dominating.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: length test in an earlier statement does not guard the read"
+  },
+  {
+   "file": "s29_guard_with_or.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: `||` evaluates *p exactly when length is 0"
+  },
+  {
+   "file": "s30_index_after_loop.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: loop index used after the loop (i == length)"
+  },
+  {
+   "file": "s31_derived_pointer_full_length.c",
+   "expect": "UNKNOWN",
+   "truth": "UNSAFE",
+   "limitation": "heuristic false-safe probe: derived pointer (data + 1) with the full length over-reads by one"
+  }
+ ]
 }

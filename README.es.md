@@ -1,29 +1,31 @@
 # cortex9-openssl-asn1-string-nul-scanner
 
-Escáner léxico e intraprocedural de usos de bytes de `ASN1_STRING` que
-asumen terminación NUL. Es la clase de CVE-2021-3712 (aviso de OpenSSL del
-24-08-2021, corregido en 1.1.1l).
+**Heurística de advertencias**, léxica e intraprocedural, para usos de
+bytes de `ASN1_STRING` que asumen terminación NUL. Es la clase de
+CVE-2021-3712. No compila ni ejecuta nada, y **no prueba seguridad ni
+inseguridad**.
 
-**No es grep ni un compilador.** Funciona así:
+Etiquetas:
 
-- tokeniza el C y separa sentencias;
-- sigue fuentes (`->data`, `ASN1_STRING_get0_data`, `X509_alias_get0`…) y
-  variables derivadas, así como expresiones de longitud;
-- clasifica cada uso como `UNSAFE`, `SAFE` o `UNKNOWN`.
-
-No compila ni ejecuta nada.
+- **`NUL_SINK_WARNING`:** el patrón llega a `%s` sin precisión o a una
+  función que busca NUL. Es una advertencia, no una prueba de lectura
+  real.
+- **`BOUNDED_PATTERN`:** el uso encaja en un patrón cuya cota está ligada
+  sintácticamente al mismo objeto origen. No implica seguridad: supone
+  `length >= 0` y que nada cambia entre la cota y el uso.
+- **`UNKNOWN`:** las reglas no pueden relacionar el uso con una cota. Es el
+  valor por defecto honesto.
+- **`NO_SOURCE`:** no se reconoció ninguna fuente ASN1.
 
 Resultados:
 
-- **Corpus upstream** (13 funciones × antes/después, etiquetadas a mano
-  desde los diffs): detecta 10 de 10 funciones inseguras antes del fix,
-  con 0 falsos positivos después. En 3 funciones corregidas responde
-  `UNKNOWN`, porque son guardas que las reglas léxicas no siguen.
-- **Corpus sintético:** 21 casos, 21 coincidencias con la especificación,
-  incluidas 4 limitaciones documentadas.
-
-Las reglas se ajustaron después de ver el corpus upstream, así que esas
-cifras **no** son una evaluación independiente.
+- **Corpus upstream** (ajustado y no independiente): 10 advertencias en
+  las funciones etiquetadas como inseguras antes del fix, y 4 `UNKNOWN`
+  en funciones corregidas. Que no haya advertencias después del fix
+  **no** demuestra la ausencia de falsos positivos.
+- **Corpus sintético:** 31 de 31 casos dan la etiqueta esperada,
+  incluidas 10 sondas de falsos seguros, ninguna marcada como
+  `BOUNDED_PATTERN`.
 
 Licencia: Apache-2.0. Los archivos `fixtures/upstream/*.c` son fuentes de
 OpenSSL sin modificar, bajo la licencia OpenSSL/SSLeay.

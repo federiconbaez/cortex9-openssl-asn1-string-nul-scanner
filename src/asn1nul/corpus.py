@@ -26,13 +26,13 @@ def synthetic_rows(root=FIX):
 
 
 def outcome(truth, verdict):
-    """How a scanner verdict relates to the hand label."""
+    """How a scanner label relates to the hand label (truth is UNSAFE / SAFE / UNKNOWN / OUT_OF_SCOPE)."""
     if truth == "OUT_OF_SCOPE":
         return "out_of_scope"
     if truth == "UNSAFE":
-        return {"UNSAFE": "detected", "UNKNOWN": "flagged_unknown"}.get(verdict, "missed")
+        return {"NUL_SINK_WARNING": "warned", "UNKNOWN": "unknown_on_unsafe"}.get(verdict, "not_warned_on_unsafe")
     if truth == "SAFE":
-        return {"UNSAFE": "false_positive", "UNKNOWN": "unknown_on_safe"}.get(verdict, "correct_safe")
+        return {"NUL_SINK_WARNING": "warning_on_safe", "UNKNOWN": "unknown_on_safe"}.get(verdict, "no_warning_on_safe")
     if truth == "UNKNOWN":
-        return {"UNKNOWN": "agrees_unknown", "UNSAFE": "overclaims_unsafe"}.get(verdict, "underclaims_safe")
+        return {"UNKNOWN": "unknown_on_unknown", "NUL_SINK_WARNING": "warning_on_unknown"}.get(verdict, "bounded_on_unknown")
     raise ValueError(truth)
